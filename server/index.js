@@ -8,10 +8,20 @@ import { authenticateToken } from './middleware/auth.js'; // Import the guard
 // --- IMPORTS FOR WEBSOCKETS ---
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+
+const allowedOrigins = [
+  'http://localhost:5173', 
+  'https://zen-board-chi.vercel.app', 
+  'https://zen-board-p4d60twun-harjot2022s-projects.vercel.app'
+];
+
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+}));
 app.use(express.json());
 
 const SECRET = process.env.JWT_SECRET || 'secretkey123';
@@ -20,7 +30,7 @@ const SECRET = process.env.JWT_SECRET || 'secretkey123';
 const server = createServer(app); // Wrap Express inside standard HTTP
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // Allow your React frontend to connect
+    origin: allowedOrigins, // Allow your React frontend to connect
     methods: ["GET", "POST", "PUT", "DELETE"]
   }
 });
