@@ -16,11 +16,11 @@ const Contact = () => {
         {/* Left Side: Info */}
         <div>
           <h2 className="text-4xl font-extrabold text-gray-900 mb-6">Get in touch</h2>
-          <p className="text-lg text-gray-500 mb-8">Have a question about TaskFlow? Our team is here to help you get the most out of your workflow.</p>
+          <p className="text-lg text-gray-500 mb-8">Have a question about ZenBoard? Our team is here to help you get the most out of your workflow.</p>
           <div className="space-y-6">
             <div className="flex items-center gap-4 text-gray-600">
               <div className="bg-blue-50 p-3 rounded-full text-blue-600"><Mail size={24} /></div>
-              <div><p className="font-bold text-gray-900">Email Us</p><p>support@taskflow.app</p></div>
+              <div><p className="font-bold text-gray-900">Email Us</p><p>support@zenboard.app</p></div>
             </div>
             <div className="flex items-center gap-4 text-gray-600">
               <div className="bg-blue-50 p-3 rounded-full text-blue-600"><MessageSquare size={24} /></div>

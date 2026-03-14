@@ -14,7 +14,7 @@ const MainLayout = () => {
               <div className="bg-blue-600 p-1.5 rounded-lg">
                 <Kanban className="text-white w-6 h-6" />
               </div>
-              <span className="text-xl font-bold tracking-tight">TaskFlow</span>
+              <span className="text-xl font-bold tracking-tight">ZenBoard</span>
             </Link>
 
             <div className="hidden md:flex items-center space-x-8">
@@ -44,7 +44,7 @@ const MainLayout = () => {
             <div className="col-span-1 md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
                 <div className="bg-blue-600 p-1.5 rounded-lg"><Kanban className="text-white w-5 h-5" /></div>
-                <span className="text-xl font-bold tracking-tight">TaskFlow</span>
+                <span className="text-xl font-bold tracking-tight">ZenBoard</span>
               </div>
               <p className="text-gray-400 text-sm">Making project management simple, visual, and effective for teams of all sizes.</p>
             </div>
@@ -61,7 +61,7 @@ const MainLayout = () => {
               <h4 className="font-bold mb-4">Company</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><Link to="/about" className="hover:text-white transition">About Us</Link></li>
-                <li><Link to="/careers" className="hover:text-white transition">Careers</Link></li>
+                {/* <li><Link to="/careers" className="hover:text-white transition">Careers</Link></li> */}
                 <li><Link to="/contact" className="hover:text-white transition">Contact</Link></li>
               </ul>
             </div>
@@ -70,13 +70,13 @@ const MainLayout = () => {
               <h4 className="font-bold mb-4">Legal</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><Link to="/privacy" className="hover:text-white transition">Privacy Policy</Link></li>
-                <li><Link to="/terms" className="hover:text-white transition">Terms of Service</Link></li>
+                {/* <li><Link to="/terms" className="hover:text-white transition">Terms of Service</Link></li> */}
               </ul>
             </div>
           </div>
           
           <div className="border-t border-gray-800 pt-8 flex justify-between items-center text-sm text-gray-500">
-            <p>&copy; {new Date().getFullYear()} TaskFlow Inc. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} ZenBoard Inc. All rights reserved.</p>
           </div>
         </div>
       </footer>

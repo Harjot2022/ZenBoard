@@ -5,11 +5,12 @@ import AuthContext, { AuthProvider } from './context/AuthContext';
 import Board from './components/Board';
 import Login from './components/Login';
 import LandingPage from './components/LandingPage';
-import MainLayout from './components/MainLayout'; // <-- Import the new layout
+import MainLayout from './components/MainLayout'; 
 import Pricing from './components/Pricing';
 import Contact from './components/Contact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import AboutUs from './pages/AboutUs';
+import Dashboard from './components/Dashboard';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
@@ -20,7 +21,7 @@ const PrivateRoute = ({ children }) => {
 const PublicRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
   if (loading) return <div>Loading...</div>;
-  return user ? <Navigate to="/board" /> : children;
+  return user ? <Navigate to="/dashboard" /> : children;
 };
 
 function App() {
@@ -44,6 +45,11 @@ function App() {
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/board" element={<PrivateRoute><Board /></PrivateRoute>} />
 
+          {/* DASHBOARD ROUTE */}
+          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+
+          {/* UPDATED BOARD ROUTE (Notice the :id parameter) */}
+          <Route path="/b/:id" element={<PrivateRoute><Board /></PrivateRoute>} />
         </Routes>
       </Router>
     </AuthProvider>
