@@ -57,7 +57,8 @@ const Board = () => {
         await fetchBoardData(activeBoard.id);
 
         // Connect to WebSocket
-        socket = io('http://localhost:5000');
+        const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        socket = io(backendUrl);
         socket.emit('join-board', activeBoard.id);
 
         socket.on('board-updated', () => {
