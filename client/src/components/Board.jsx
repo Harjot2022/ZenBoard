@@ -8,15 +8,27 @@ import { move, reorder } from '../utils/dragHelpers';
 import AuthContext from '../context/AuthContext';
 import { io } from 'socket.io-client'; 
 import { useParams, useNavigate } from 'react-router-dom';
+import { useBoardStore } from '../store/boardStore';
 
 const Board = () => {
   const { id } = useParams(); 
   const navigate = useNavigate();
-  const [board, setBoard] = useState(null);
-  const [lists, setLists] = useState([]);
-  const [cards, setCards] = useState([]);
-  const [selectedCard, setSelectedCard] = useState(null);
   
+  const board = useBoardStore((state) => state.currentBoard);
+  const lists = useBoardStore((state) => state.lists);
+  const cards = useBoardStore((state) => state.cards);
+  const selectedCard = useBoardStore((state) => state.selectedCard);
+  
+  const setCurrentBoard = useBoardStore((state) => state.setCurrentBoard);
+  const setLists = useBoardStore((state) => state.setLists);
+  const setCards = useBoardStore((state) => state.setCards);
+  const addCard = useBoardStore((state) => state.addCard);
+  const addList = useBoardStore((state) => state.addList);
+  const deleteCard = useBoardStore((state) => state.deleteCard);
+  const deleteList = useBoardStore((state) => state.deleteList);
+  const updateCard = useBoardStore((state) => state.updateCard);
+  const setSelectedCard = useBoardStore((state) => state.setSelectedCard);
+
   const { logout } = useContext(AuthContext);
 
   const [isAddingList, setIsAddingList] = useState(false);
@@ -53,7 +65,7 @@ const Board = () => {
         const res = await api.get(`/boards/${id}`);
         const activeBoard = res.data;
 
-        setBoard(activeBoard);
+        setCurrentBoard(activeBoard);
         await fetchBoardData(activeBoard.id);
 
         // Connect to WebSocket
@@ -115,7 +127,7 @@ const Board = () => {
     if (!newListTitle) return;
     try {
       const res = await api.post('/lists', { title: newListTitle, board_id: board.id });
-      setLists([...lists, res.data]);
+      addList(res.data);
       setNewListTitle("");
       setIsAddingList(false);
     } catch (err) { console.error(err); }
@@ -127,7 +139,7 @@ const Board = () => {
     try {
       // We added boardId to the payload!
       const res = await api.post('/cards', { title: newCardTitle, list_id: listId, boardId: board.id });
-      setCards([...cards, res.data]);
+      addCard(res.data);
       setNewCardTitle("");
       setAddingCardToList(null);
     } catch (err) { console.error(err); }
@@ -141,8 +153,8 @@ const handleDeleteList = async (listId) => {
       await api.delete(`/lists/${listId}?boardId=${board.id}`);
       
       // Instantly remove the list AND its cards from the screen
-      setLists(lists.filter(l => l.id !== listId));
-      setCards(cards.filter(c => c.list_id !== listId));
+      deleteList(listId);
+      
     } catch (err) {
       console.error("Failed to delete list", err);
     }
@@ -254,9 +266,9 @@ const handleDeleteList = async (listId) => {
             onClose={() => setSelectedCard(null)} 
             onUpdate={(updatedCard) => {
               if (updatedCard.isDeleted) {
-                setCards(cards.filter(c => c.id !== updatedCard.id));
+                deleteCard(updatedCard.id);
               } else {
-                setCards(cards.map(c => c.id === updatedCard.id ? updatedCard : c));
+                updateCard(updatedCard.id, updatedCard);
               }
             }}
           />
