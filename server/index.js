@@ -70,7 +70,7 @@ app.post('/auth/register', async (req, res) => {
     }
 
     // 2. Hash password
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(8);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // 3. Insert User
@@ -203,6 +203,29 @@ app.get('/boards/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Get all data of a board by ID
+app.get('/boards/:id/data',authenticateToken , async(req,res) => {
+  
+  try {
+    const { id } = req.params;
+
+    const lists = await pool.query(
+      "SELECT * FROM lists WHERE board_id = $1 ORDER BY position ASC ", 
+      [id]
+    );
+
+    const cards = await pool.query(
+      "SELECT * FROM cards WHERE list_id IN ( SELECT id FROM lists WHERE board_id = $1) ORDER BY position ASC", 
+      [id]
+    );
+  
+    res.json({lists :lists.rows, cards: cards.rows });
+    
+  } catch (err) {
+    console.error(error.message);
+    res.status(500).json({error: err.message});
+  }
+});
 
 // --- LIST ROUTES ---
 

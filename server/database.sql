@@ -1,21 +1,23 @@
-CREATE TABLE IF NOT EXISTS boards (
-  id SERIAL PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS "bio" TEXT,
+ADD COLUMN IF NOT EXISTS "avatar" TEXT,
+ADD COLUMN IF NOT EXISTS "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
-CREATE TABLE IF NOT EXISTS lists (
-  id SERIAL PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  position INTEGER NOT NULL DEFAULT 0,
-  board_id INTEGER REFERENCES boards(id) ON DELETE CASCADE
-);
+ALTER TABLE cards
+ADD COLUMN IF NOT EXISTS "assigned_to" INTEGER NULL,
+ADD CONSTRAINT fk_assigned_user
+FOREIGN KEY (assigned_to)
+REFERENCES users(id) ON DELETE SET NULL;
 
-CREATE TABLE IF NOT EXISTS cards (
-  id SERIAL PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  position INTEGER NOT NULL DEFAULT 0,
-  list_id INTEGER REFERENCES lists(id) ON DELETE CASCADE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE user_activity(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    action_type TEXT 
+      CHECK (action_type IN (
+        'card_created', 
+        'card_completed', 
+        'board_created', 
+        'comment_added')),
+    board_id INTEGER REFERENCES boards(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

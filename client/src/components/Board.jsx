@@ -45,10 +45,9 @@ const Board = () => {
   // We extract this so we can call it initially AND whenever Socket.io tells us to
   const fetchBoardData = async (activeBoardId) => {
     try {
-      const listsRes = await api.get(`/boards/${activeBoardId}/lists`);
-      setLists(listsRes.data);
-      const cardsRes = await api.get(`/boards/${activeBoardId}/cards`);
-      setCards(cardsRes.data);
+      const res = await api.get(`/boards/${activeBoardId}/data`);
+      setLists(res.data.lists);
+      setCards(res.data.cards);
     } catch (err) {
       console.error("Error fetching board data:", err);
     }
