@@ -61,7 +61,7 @@ io.on('connection', (socket) => {
 // Register
 app.post('/auth/register', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, email , avatar , password } = req.body;
 
     // 1. Check if user already exists
     const userCheck = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
@@ -75,8 +75,8 @@ app.post('/auth/register', async (req, res) => {
 
     // 3. Insert User
     const newUser = await pool.query(
-      "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *",
-      [username, hashedPassword]
+      "INSERT INTO users (username, password , email , avatar) VALUES ($1, $2 , $3 , $4) RETURNING *",
+      [username, hashedPassword , email , avatar]
     );
 
     // 4. Generate Token
@@ -113,11 +113,43 @@ app.post('/auth/login', async (req, res) => {
       username: user.rows[0].username },
        process.env.JWT_SECRET || 'secretkey123'
       );
-    res.json({ token, user: { id: user.rows[0].id, username: user.rows[0].username } });
+    res.json({ token, user: { id: user.rows[0].id,
+      username: user.rows[0].username , 
+      email: user.rows[0].email , 
+      avatar: user.rows[0].avatar } });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+//Profile routes
+
+app.get('/users/:id/profile', authenticateToken , async(req,res) => {
+  
+try {
+  const user = await pool.query(
+    "SELECT * FROM users WHERE id = $1 " , 
+    [req.params.id]);
+
+  res.json(user.rows);   
+} catch (error) {
+  res.json({error : error.message});
+  console.log(error);
+}
+});
+
+app.post('/users/:id/profile', authenticateToken , async(req,res) => {
+  const {id} = req.params;
+  const{ email , bio , avatar } = req.body;
+});
+
+app.get('/users/search?q=query' , async(req,res) => {
+
+});
+
+app.get('/users/:id/stats' , async(req,res) => {
+
 });
 
 // Test Route
