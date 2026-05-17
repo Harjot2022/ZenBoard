@@ -61,7 +61,7 @@ io.on('connection', (socket) => {
 // Register
 app.post('/auth/register', async (req, res) => {
   try {
-    const { username, email , avatar , password } = req.body;
+    const { username, email , bio , avatar , password } = req.body;
 
     // 1. Check if user already exists
     const userCheck = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
@@ -75,8 +75,8 @@ app.post('/auth/register', async (req, res) => {
 
     // 3. Insert User
     const newUser = await pool.query(
-      "INSERT INTO users (username, password , email , avatar) VALUES ($1, $2 , $3 , $4) RETURNING *",
-      [username, hashedPassword , email , avatar]
+      "INSERT INTO users (username, password , email, bio , avatar) VALUES ($1, $2 , $3 , $4 , $5) RETURNING *",
+      [username, hashedPassword , email, bio , avatar]
     );
 
     // 4. Generate Token
@@ -86,7 +86,14 @@ app.post('/auth/register', async (req, res) => {
       process.env.JWT_SECRET || 'secretkey123'
     );
 
-    res.json({ token, user: { id: newUser.rows[0].id, username: newUser.rows[0].username } });
+    res.json({ token, user: { 
+      id: newUser.rows[0].id, 
+      username: newUser.rows[0].username,
+      email: newUser.rows[0].email ,
+      bio:newUser.rows[0].bio,
+      avatar:newUser.rows[0].avatar,
+      created_at:newUser.rows[0].created_at,
+     } });
 
   } catch (err) {
     console.error(err.message);
@@ -110,13 +117,21 @@ app.post('/auth/login', async (req, res) => {
     // 3. Give Token
     const token = jwt.sign({ 
       id: user.rows[0].id, 
-      username: user.rows[0].username },
+      username: user.rows[0].username,      
+     },
        process.env.JWT_SECRET || 'secretkey123'
       );
-    res.json({ token, user: { id: user.rows[0].id,
-      username: user.rows[0].username , 
-      email: user.rows[0].email , 
-      avatar: user.rows[0].avatar } });
+
+    res.json({ 
+      token, 
+      user: { 
+        id: user.rows[0].id,
+        username: user.rows[0].username , 
+        email: user.rows[0].email ,
+        bio:user.rows[0].bio,
+        avatar:user.rows[0].avatar,
+        created_at:user.rows[0].created_at, 
+      } });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -128,9 +143,10 @@ app.post('/auth/login', async (req, res) => {
 app.get('/users/:id/profile', authenticateToken , async(req,res) => {
   
 try {
+  const id = req.params.id;
   const user = await pool.query(
     "SELECT * FROM users WHERE id = $1 " , 
-    [req.params.id]);
+    [id]);
 
   res.json(user.rows);   
 } catch (error) {
@@ -140,15 +156,80 @@ try {
 });
 
 app.post('/users/:id/profile', authenticateToken , async(req,res) => {
-  const {id} = req.params;
-  const{ email , bio , avatar } = req.body;
+  try {
+    
+    const {id} = req.params;
+    const{ email , bio , avatar } = req.body;
+  
+    const updatedProfile = await pool.query(
+      "UPDATE users SET email = $1 , bio = $2 , avatar = $3 WHERE id = $4", 
+    [email ,bio , avatar , id]);
+
+    res.json(updatedProfile.rows[0]);  
+  } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ error: err.message });
+  }
 });
 
-app.get('/users/search?q=query' , async(req,res) => {
+app.get('/users/search' , async(req,res) => {
+  try {
+    const search = req.query.q;
+
+    const matchedUsers = await pool.query(` 
+      SELECT id , username 
+      FROM users 
+      WHERE username ILIKE $1 LIMIT 10`,
+     [`$(search)%`]);
+
+    res.json(matchedUsers);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({error: error.message});
+  }
 
 });
 
 app.get('/users/:id/stats' , async(req,res) => {
+  try {
+    const id = req.params.id;
+
+    const boardsOwned = await pool.query(`
+    SELECT u.id as User_id,
+    u.username,
+    b.id as Board_id,  
+    b.title as Board_title
+
+    FROM users u
+    JOIN board_members bm 
+      ON u.id = bm.user_id
+    JOIN boards b
+      ON b.id = bm.board_id
+    WHERE u.id = $1 AND bm.role = 'admin'` , [id]);
+
+   res.json(boardsOwned);  
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({error : err.message});
+  }
+  
+});
+
+//card assignment rules
+
+app.put('/cards/:id/assign', async(req,res) => {
+  try {
+    const card_id = req.params.id;
+    
+    const cardAssigned = await pool.query(`
+      
+      `)
+  } catch (error) {
+    
+  }
+});
+
+app.put('cards/:id/unassign', async(req,res) => {
 
 });
 

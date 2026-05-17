@@ -3,13 +3,28 @@ import AuthContext from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+
+   const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    bio: "",
+    password: "",
+    fullName: "",
+    avatar: ""
+  });
+
   const [isRegistering, setIsRegistering] = useState(false); // Toggle state
   const [error, setError] = useState(''); // Error message state
   
   const { login, register } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const handleChange = (e) =>{
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,9 +32,16 @@ const Login = () => {
 
     try {
       if (isRegistering) {
-        await register(username, password);
+        await register(
+           formData.username,
+           formData.password, 
+           formData.email, 
+           formData.bio, 
+           formData.avatar);
       } else {
-        await login(username, password);
+        await login(
+          formData.username, 
+          formData.password);
       }
       navigate('/'); // Redirect to Board on success
     } catch (err) {
@@ -47,28 +69,80 @@ const Login = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Username</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Username
+            </label>
             <input 
               className="w-full border p-2 rounded focus:outline-blue-500" 
               placeholder="Enter username" 
-              value={username} 
-              onChange={e => setUsername(e.target.value)} 
+              value={formData.username} 
+              onChange={handleChange} 
+              name="username"
               required
             />
           </div>
           
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
+          {isRegistering &&(
+            <>
+              <div>
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              email
+            </label>
             <input 
               className="w-full border p-2 rounded focus:outline-blue-500" 
-              type="password" 
-              placeholder="Enter password" 
-              value={password} 
-              onChange={e => setPassword(e.target.value)} 
+              placeholder="Enter email" 
+              value={formData.email} 
+              onChange={handleChange} 
+              name="email"
+              required
+            />
+            </div>
+
+              <div>
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              bio
+            </label>
+            <input 
+              className="w-full border p-2 rounded focus:outline-blue-500" 
+              placeholder="Enter bio" 
+              value={formData.bio} 
+              onChange={handleChange} 
+              name="bio"
               required
             />
           </div>
 
+              <div>
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              avatar
+            </label>
+            <input 
+              className="w-full border p-2 rounded focus:outline-blue-500" 
+              placeholder="Enter avatar URL" 
+              value={formData.avatar} 
+              onChange={handleChange} 
+              name="avatar"
+              required
+            />
+          </div>
+            </>
+          )}
+
+          <div>
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Password
+            </label>
+            <input 
+              className="w-full border p-2 rounded focus:outline-blue-500" 
+              type="password" 
+              placeholder="Enter password" 
+              value={formData.password} 
+              onChange={handleChange} 
+              name="password"
+              required
+            />
+          </div>
+ 
           <button className="bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 transition duration-200 mt-2">
             {isRegistering ? "Sign Up" : "Log In"}
           </button>
@@ -76,7 +150,9 @@ const Login = () => {
 
         {/* Toggle Link */}
         <p className="mt-6 text-center text-sm text-gray-600">
-          {isRegistering ? "Already have an account?" : "New to Trello Clone?"}
+          {isRegistering ? 
+          "Already have an account?" :
+           "New to Trello Clone?"}
           <span 
             onClick={() => {
               setIsRegistering(!isRegistering);

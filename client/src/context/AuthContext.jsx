@@ -24,14 +24,20 @@ export const AuthProvider = ({ children }) => {
     setUser(res.data.user);
   };
 
-  const register = async (username, password) => {
-    // This calls the backend route we just updated
-    const res = await api.post('/auth/register', { username, password });
+  const register = async (username, password, email, bio, avatar) => {
+    
+    const res = await api.post('/auth/register', 
+      {username, 
+      password , 
+      email , 
+      bio , 
+      avatar });
     
     // Save token and set user state
     localStorage.setItem('token', res.data.token);
     api.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
     setUser(res.data.user);
+    console.log("Registered user:", res.data);
   };
 
   const logout = () => {
