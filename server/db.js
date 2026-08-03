@@ -7,7 +7,7 @@ const { Pool } = pkg;
 const pool = new Pool(
   process.env.DATABASE_URL 
     ? { connectionString: process.env.DATABASE_URL,
-        max: 15,                    
+        max: 20,                    
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 5000,
      }
